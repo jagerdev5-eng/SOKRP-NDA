@@ -459,13 +459,15 @@ async function drawNDAToCanvas({ name, discordId, role, notes, dateStr }) {
   const replaced = FULL_NDA_TEXT.replace("(enter date)", dateStr).replace("(Enter your name here)", name || '[NAME]');
   cursorY = wrapText(rctx, replaced, bodyX, cursorY, docW - 72, 20);
 
-  // signature block
-  const signBoxH = 160;
-  const signBoxY = docY + docH - signBoxH - 36;
-  rctx.fillStyle = "#08151c";
-  rctx.fillRect(bodyX, signBoxY, docW - 72, signBoxH);
-  rctx.strokeStyle = "rgba(255,255,255,0.06)";
-  rctx.strokeRect(bodyX, signBoxY, docW - 72, signBoxH);
+// signature block (sit directly under the body text)
+const signBoxH = 160;
+const gap = 40;  
+const signBoxY = cursorY + gap;
+
+rctx.fillStyle = "#08151c";
+rctx.fillRect(bodyX, signBoxY, docW - 72, signBoxH);
+rctx.strokeStyle = "rgba(255,255,255,0.06)";
+rctx.strokeRect(bodyX, signBoxY, docW - 72, signBoxH);
 
   // left details
   rctx.fillStyle = "#9fb6c9";
@@ -579,7 +581,7 @@ async function submitNDA() {
     // convert to blob
     const blob = await new Promise(res => renderCanvas.toBlob(res, 'image/png', 0.95));
 
-    statusEl.innerHTML = 'Uploading to Discord...';
+    statusEl.innerHTML = 'Sending to Deveopment CoC';
 
     const embed = {
       title: "📝 NDA Disclosure Recorded",
