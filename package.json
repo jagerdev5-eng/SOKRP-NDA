@@ -1,8 +1,10 @@
 {
   "name": "sokrp-nda-uploader",
+  "author": "Jager S, O-6",
   "version": "1.0.0",
   "dependencies": {
     "form-data": "^4.0.0",
-    "node-fetch": "^2.6.7"
+    "node-fetch": "^2.6.7",
+    "pdf-lib": "^1.17.1"
   }
 }

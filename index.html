@@ -206,7 +206,7 @@ function setupCanvas(){
   canvas.width=rect.width;
   canvas.height=rect.height;
   ctx.fillStyle='#808080';
-  ctx.fillRect(0,0,rect.width,rect.height);
+  ctx.fillRect(1,0,rect.width,rect.height);
   ctx.lineWidth=2;
   ctx.strokeStyle='#13210';
   ctx.lineCap='round';
@@ -262,11 +262,11 @@ function updatePreviewSig() {
   tmp.height = h;
   const c = tmp.getContext('2d');
 
-  // fill background
+  
   c.fillStyle = '#343434';
   c.fillRect(0, 0, w, h);
 
-  // draw signature same aspect ratio
+  
   const allPoints = paths.flat();
   const xs = allPoints.map(p => p.x);
   const ys = allPoints.map(p => p.y);
@@ -277,14 +277,14 @@ function updatePreviewSig() {
   const sigWidth = maxX - minX;
   const sigHeight = maxY - minY;
 
-  // padding and scale
+  
   const pad = 6;
   const scale = Math.min(
     (w - pad * 2) / sigWidth,
     (h - pad * 2) / sigHeight
   );
 
-  // center signature
+  
   const offsetX = (w - sigWidth * scale) /  - minX * scale;
   const offsetY = (h - sigHeight * scale) / 2 - minY * scale;
 
