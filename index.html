@@ -13,35 +13,77 @@
     --accent:#6d28d9;
     --text:#e6eef8;
     --panel:#0b2130;
-    --sig-bg:#1e1e1e;
+    --sig-bg:#111418;
   }
   *{box-sizing:border-box}
-  html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;background:
-    radial-gradient(1200px 400px at 10% 10%, rgba(23,30,44,0.25), transparent),
-    linear-gradient(180deg,#041225 0%, #071428 100%); color:var(--text)}
+  html,body{
+    height:100%;margin:0;
+    font-family:Inter,system-ui,Segoe UI,Roboto,Arial;
+    background:
+      radial-gradient(1000px 400px at 10% 10%, rgba(23,30,44,0.25), transparent),
+      linear-gradient(180deg,#041225 0%, #071428 100%);
+    color:var(--text);
+  }
   .wrap{max-width:1200px;margin:28px auto;padding:22px}
-  .card{background:var(--card);border-radius:12px;padding:20px;border:1px solid rgba(255,255,255,0.02);box-shadow:0 8px 40px rgba(2,6,23,0.6)}
+  .card{background:var(--card);border-radius:12px;padding:20px;border:1px solid rgba(255,255,255,0.03);box-shadow:0 8px 40px rgba(2,6,23,0.6)}
   header{display:flex;align-items:center;gap:16px;margin-bottom:18px}
   .logo img{width:64px;height:64px;border-radius:10px;object-fit:cover;box-shadow:0 6px 18px rgba(124,58,237,0.12)}
   h1{font-size:20px;margin:0}
   p.lead{color:var(--muted);margin:6px 0 0;font-size:13px}
   .grid{display:grid;grid-template-columns:1fr 420px;gap:18px;margin-top:18px;align-items:start}
   label{display:block;color:var(--muted);font-size:13px;margin-top:12px}
-  input[type=text], textarea{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:var(--text);margin-top:8px}
+  input[type=text], textarea{
+    width:100%;padding:10px;border-radius:8px;
+    border:1px solid rgba(255,255,255,0.05);
+    background:transparent;color:var(--text);margin-top:8px
+  }
   textarea{min-height:96px;resize:vertical}
   .muted{color:var(--muted);font-size:13px;margin-top:10px}
-  #signature-pad{width:100%;height:220px;border-radius:8px;background:white;display:block;touch-action:none;border:2px dashed rgba(255,255,255,0.05)}
+  #signature-pad{
+    width:100%;height:220px;border-radius:8px;background:#f9fafb;
+    display:block;touch-action:none;border:2px dashed rgba(255,255,255,0.08);
+  }
   .controls{display:flex;gap:10px;margin-top:10px;align-items:center;flex-wrap:wrap}
   .btn{background:var(--accent);color:white;padding:10px 14px;border-radius:8px;border:0;cursor:pointer;font-weight:600}
-  .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted)}
+  .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.08);color:var(--muted)}
   .btn.small{padding:8px 10px;font-size:14px}
   .status{font-size:13px;color:var(--muted);margin-left:10px}
-  .nda-view{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.00));padding:14px;border-radius:8px;height:600px;overflow:auto;border:1px solid rgba(255,255,255,0.02);color:#dfe9f6}
+  .nda-view{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0));padding:14px;border-radius:8px;height:600px;overflow:auto;border:1px solid rgba(255,255,255,0.03);color:#dfe9f6}
   .nda-view h2{margin:0 0 8px;font-size:20px}
   .nda-view p{line-height:1.4;color:#cfe3f7;font-size:13px}
-  .sig-small-wrap{display:flex;align-items:center;gap:12px;margin-top:12px}
-  .sig-small-box{width:320px;height:96px;background:var(--sig-bg);border-radius:8px;padding:8px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.04)}
-  .sig-small-box img{max-width:100%;max-height:80px;border-radius:4px;display:block}
+
+  /* Signature preview */
+  .sig-small-wrap{
+    display:flex;align-items:center;gap:14px;
+    background:var(--panel);
+    border:1px solid rgba(255,255,255,0.05);
+    border-radius:10px;
+    padding:10px 14px;
+    margin-top:18px;
+    box-shadow:0 4px 20px rgba(0,0,0,0.4);
+  }
+  .sig-small-wrap span.label{
+    font-size:13px;
+    color:var(--muted);
+    min-width:130px;
+  }
+  .sig-small-box{
+    flex:0 0 auto;
+    width:280px;
+    height:80px;
+    background:var(--sig-bg);
+    border-radius:6px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border:1px solid rgba(255,255,255,0.06);
+  }
+  .sig-small-box img{
+    max-width:100%;
+    max-height:70px;
+    border-radius:4px;
+    object-fit:contain;
+  }
   @media (max-width:980px){
     .grid{grid-template-columns:1fr;}
     .nda-view{height:340px}
@@ -51,69 +93,62 @@
 </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="card">
-      <header>
-        <div class="logo">
-          <img id="top-logo" src="https://cdn.discordapp.com/attachments/1437638010903465984/1437953301130772582/SOKRP_Dev_Logo_2.png" alt="SOKRP Logo">
-        </div>
-        <div>
-          <h1>State of Kentucky Roleplay — NDA Signing</h1>
-          <p class="lead">Please fill out your information, sign below, and submit. Your signed NDA was disclosed to SOKRP Development Management.</p>
-        </div>
-      </header>
-
-      <div class="grid">
-        <div class="left">
-          <label for="name">Roleplay name (ex: Jager Sullivan)</label>
-          <input id="name" type="text" placeholder="Your roleplay name">
-
-          <label for="discordId">Discord ID</label>
-          <input id="discordId" type="text" placeholder="123456789012345678">
-
-          <label for="role">Team / Role</label>
-          <input id="role" type="text" placeholder="Software / Graphics / Media">
-
-          <label for="notes">Notes (optional)</label>
-          <textarea id="notes" placeholder="Any notes..."></textarea>
-
-          <label class="sig-wrap">Signature (draw below)</label>
-          <canvas id="signature-pad"></canvas>
-
-          <div class="controls">
-            <button id="clear" class="btn ghost small">Clear</button>
-            <button id="undo" class="btn ghost small">Undo</button>
-            <div style="flex:1"></div>
-            <button id="submitBtn" class="btn">Generate & Send Signed NDA</button>
-            <div id="status" class="status"></div>
-          </div>
-
-          <div class="muted">By submitting, you agree this signature indicates acceptance.</div>
-
-          <div class="sig-small-wrap">
-            <div style="font-size:13px;color:var(--muted)">Signature preview (small):</div>
-            <div class="sig-small-box" id="sigSmallBox"><span style="color:var(--muted);font-size:13px">No signature yet</span></div>
-          </div>
-        </div>
-
-        <aside class="right">
-          <div class="nda-title" style="color:var(--muted);font-size:14px;margin-bottom:10px">NDA Document (preview)</div>
-          <div id="nda" class="nda-view" role="document">
-            <h2>NON-DISCLOSURE AGREEMENT</h2>
-            <p><strong>PARTIES</strong><br>This Non-Disclosure Agreement is entered into on <span id="ndadate"></span>, by <strong>State of Kentucky Roleplay Development Command</strong> and between <strong><span id="previewName">[Enter your name here]</span></strong>.</p>
-            <p><strong>CONFIDENTIAL INFORMATION</strong><br>The Receiving Party agrees not to disclose or copy any confidential information related to SOKRP and agrees not to use any such information without consent.</p>
-            <p>Confidential information includes any data, discoveries, processes, techniques, programs, or knowledge bases related to SOKRP operations.</p>
-            <p><strong>RETURN OF CONFIDENTIAL INFORMATION</strong><br>The Receiving Party agrees to return all confidential information to SOKRP Development upon termination of this Agreement.</p>
-            <p><strong>OWNERSHIP</strong><br>This Agreement may only be transferred with written consent by both Parties.</p>
-            <hr>
-            <p><strong>Signed by:</strong> <span id="sigPreviewName">[NAME]</span></p>
-            <p><strong>Discord ID:</strong> <span id="sigPreviewDiscord">[DISCORD ID]</span></p>
-            <p style="margin-top:10px;color:var(--muted);font-size:12px">Note: The embed posted to Discord will not show the signature inline — a small signature image will be attached below the embed for clarity.</p>
-          </div>
-        </aside>
+<div class="wrap">
+  <div class="card">
+    <header>
+      <div class="logo">
+        <img src="https://cdn.discordapp.com/attachments/1437638010903465984/1437953301130772582/SOKRP_Dev_Logo_2.png" alt="SOKRP Logo">
       </div>
+      <div>
+        <h1>State of Kentucky Roleplay — NDA Signing</h1>
+        <p class="lead">Please fill out your information, sign below, and submit. Your signed NDA will be sent to SOKRP Development Management.</p>
+      </div>
+    </header>
+
+    <div class="grid">
+      <div class="left">
+        <label>Roleplay name</label>
+        <input id="name" type="text" placeholder="Your roleplay name">
+        <label>Discord ID</label>
+        <input id="discordId" type="text" placeholder="123456789012345678">
+        <label>Team / Role</label>
+        <input id="role" type="text" placeholder="Software / Graphics / Media">
+        <label>Notes (optional)</label>
+        <textarea id="notes" placeholder="Any notes..."></textarea>
+
+        <label>Signature (draw below)</label>
+        <canvas id="signature-pad"></canvas>
+
+        <div class="controls">
+          <button id="clear" class="btn ghost small">Clear</button>
+          <button id="undo" class="btn ghost small">Undo</button>
+          <div style="flex:1"></div>
+          <button id="submitBtn" class="btn">Generate & Send Signed NDA</button>
+          <div id="status" class="status"></div>
+        </div>
+
+        <div class="muted">By submitting, you agree this signature indicates acceptance.</div>
+
+        <div class="sig-small-wrap">
+          <span class="label">Signature preview:</span>
+          <div class="sig-small-box" id="sigSmallBox"><span style="color:var(--muted);font-size:13px">No signature yet</span></div>
+        </div>
+      </div>
+
+      <aside class="right">
+        <div class="nda-view">
+          <h2>NON-DISCLOSURE AGREEMENT</h2>
+          <p><strong>PARTIES</strong><br>This NDA is entered into on <span id="ndadate"></span> by <strong>State of Kentucky Roleplay Development Command</strong> and <strong><span id="previewName">[Enter your name]</span></strong>.</p>
+          <p><strong>CONFIDENTIAL INFORMATION</strong><br>The Receiving Party agrees not to disclose or copy any confidential information related to SOKRP and not to use such information without consent.</p>
+          <p><strong>RETURN OF CONFIDENTIAL INFORMATION</strong><br>All confidential material will be returned upon termination of this Agreement.</p>
+          <hr>
+          <p><strong>Signed by:</strong> <span id="sigPreviewName">[NAME]</span></p>
+          <p><strong>Discord ID:</strong> <span id="sigPreviewDiscord">[DISCORD ID]</span></p>
+        </div>
+      </aside>
     </div>
   </div>
+</div>
 
 <script>
 const WEBHOOK_URL = "https://discord.com/api/webhooks/1438592976279437404/uf4h0RutBfteN4l_lRNZTfEY8cfj1kGiaybSY4D2B-dF1ZlFCzkEx_FLiQq1ancCKHjs";
@@ -142,7 +177,7 @@ function setupCanvas(){
   canvas.width = rect.width * ratio;
   canvas.height = rect.height * ratio;
   ctx.scale(ratio, ratio);
-  ctx.fillStyle = '#ffffff';
+  ctx.fillStyle = '#f9fafb';
   ctx.fillRect(0, 0, rect.width, rect.height);
   ctx.lineWidth = 2;
   ctx.strokeStyle = '#000';
@@ -150,14 +185,13 @@ function setupCanvas(){
 }
 setupCanvas();
 
-let drawing = false, currentPath = [], paths = [];
+let drawing = false, paths = [], currentPath = [];
 
 function getPos(e){
   const r = canvas.getBoundingClientRect();
-  const x = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
-  const y = (e.touches ? e.touches[0].clientY : e.clientY) - r.top;
-  return {x,y};
+  return {x: (e.touches ? e.touches[0].clientX : e.clientX) - r.left, y: (e.touches ? e.touches[0].clientY : e.clientY) - r.top};
 }
+
 canvas.addEventListener('pointerdown', e => { drawing=true; currentPath=[]; const p=getPos(e); currentPath.push(p); ctx.beginPath(); ctx.moveTo(p.x,p.y); });
 canvas.addEventListener('pointermove', e => { if(!drawing) return; const p=getPos(e); currentPath.push(p); ctx.lineTo(p.x,p.y); ctx.stroke(); });
 canvas.addEventListener('pointerup', ()=>{ if(drawing){drawing=false;paths.push([...currentPath]); updateSmallPreview();} });
@@ -167,14 +201,16 @@ document.getElementById('undo').onclick=()=>{paths.pop();setupCanvas();for(const
 
 function updateSmallPreview(){
   if(paths.length===0){sigSmallBox.innerHTML='<span style="color:var(--muted);font-size:13px">No signature yet</span>';return;}
-  const w=300,h=80,tmp=document.createElement('canvas');tmp.width=w;tmp.height=h;
-  const c=tmp.getContext('2d');c.fillStyle='#1e1e1e';c.fillRect(0,0,w,h);c.strokeStyle='#f8fafc';c.lineWidth=2;
+  const w=280,h=80,tmp=document.createElement('canvas');tmp.width=w;tmp.height=h;
+  const c=tmp.getContext('2d');
+  c.fillStyle='#111418';c.fillRect(0,0,w,h);
+  c.strokeStyle='#e6eef8';c.lineWidth=2;
   for(const s of paths){if(!s.length)continue;c.beginPath();c.moveTo(s[0].x/2,s[0].y/2);for(let i=1;i<s.length;i++)c.lineTo(s[i].x/2,s[i].y/2);c.stroke();}
   const img=new Image();img.src=tmp.toDataURL();sigSmallBox.innerHTML='';sigSmallBox.appendChild(img);
 }
 
 function updatePreview(){
-  previewNameEl.textContent = nameEl.value || '[Enter your name here]';
+  previewNameEl.textContent = nameEl.value || '[Enter your name]';
   sigPreviewName.textContent = nameEl.value || '[NAME]';
   sigPreviewDiscord.textContent = discordEl.value || '[DISCORD ID]';
 }
@@ -182,8 +218,9 @@ function updatePreview(){
 
 async function makeSigBlob(){
   if(paths.length===0) return null;
-  const tmp=document.createElement('canvas');tmp.width=300;tmp.height=80;
-  const c=tmp.getContext('2d');c.fillStyle='#1e1e1e';c.fillRect(0,0,300,80);
+  const tmp=document.createElement('canvas');tmp.width=280;tmp.height=80;
+  const c=tmp.getContext('2d');
+  c.fillStyle='#111418';c.fillRect(0,0,280,80);
   c.strokeStyle='#f8fafc';c.lineWidth=2;
   for(const s of paths){if(!s.length)continue;c.beginPath();c.moveTo(s[0].x/2,s[0].y/2);for(let i=1;i<s.length;i++)c.lineTo(s[i].x/2,s[i].y/2);c.stroke();}
   return await new Promise(r=>tmp.toBlob(b=>r(b),'image/png'));
@@ -194,19 +231,20 @@ submitBtn.onclick=async()=>{
   submitBtn.disabled=true;statusEl.textContent='Uploading...';
   try{
     const blob=await makeSigBlob();
-    const embed={title:"📝 NDA Disclosure Recorded",color:0x3b82f6,thumbnail:{url:LOGO_URL},fields:[
+    const embed={title:"📝 NDA Disclosure Recorded",color:0x6d28d9,thumbnail:{url:LOGO_URL},fields:[
       {name:"Name",value:nameEl.value,inline:true},
       {name:"Discord ID",value:discordEl.value,inline:true},
       {name:"Role",value:roleEl.value||'N/A',inline:true},
       {name:"Notes",value:notesEl.value||'N/A',inline:false}
     ],footer:{text:"SOKRP Development Command • NDA System",icon_url:LOGO_URL},timestamp:new Date().toISOString()};
     const form=new FormData();
-    form.append('payload_json',JSON.stringify({username:"SOKRP NDA",avatar_url:LOGO_URL,embeds:[embed]}));
+    form.append('payload_json',JSON.stringify({username:"SOKRP NDA System",avatar_url:LOGO_URL,embeds:[embed]}));
     if(blob) form.append('file',blob,`${nameEl.value}_signature.png`);
     const res=await fetch(WEBHOOK_URL,{method:'POST',body:form});
     if(!res.ok) throw new Error(await res.text());
     statusEl.textContent='✅ Submitted successfully!';
-  }catch(e){console.error(e);statusEl.textContent='❌ '+e.message;}finally{submitBtn.disabled=false;}
+  }catch(e){console.error(e);statusEl.textContent='❌ '+e.message;}
+  finally{submitBtn.disabled=false;}
 };
 </script>
 </body>
