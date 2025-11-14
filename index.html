@@ -3,97 +3,131 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>SOKRP — NDA Signing</title>
+<title>SOKRP — NDA Authorization Gateway</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#071528; --card:#081827; --muted:#9aa4b2; --accent:#6d28d9;
-    --text:#e6eef8; --panel:#0b2130; --sig-bg:#0e1118;
+    --bg-0:#060814;
+    --bg-1:#071428;
+    --card:#081827;
+    --muted:#9fb6c9;
+    --accent-a:#5b21b6; /* purple */
+    --accent-b:#3b82f6; /* blue */
+    --text:#e6eef8;
+    --panel:#0b2130;
+    --sig-bg:#04060a;
   }
+
+  /* Signature preview canvas background fix - moved OUTSIDE :root */
+  #signaturePreview,
+  #signature-pad-preview,
+  canvas.signature-preview {
+      background-color: #0b121a !important; /* SAME as page */
+      border: none !important;
+      outline: none !important;
+      box-shadow: none !important;
+  }
+
   *{box-sizing:border-box}
   html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;
     background:
-      radial-gradient(1000px 400px at 10% 10%, rgba(23,30,44,0.25), transparent),
-      linear-gradient(180deg,#041225 0%, #071428 100%); color:var(--text)}
-  .wrap{max-width:1200px;margin:28px auto;padding:22px}
-  .card{background:var(--card);border-radius:12px;padding:20px;border:1px solid rgba(255,255,255,0.02);box-shadow:0 8px 40px rgba(2,6,23,0.6)}
-  header{display:flex;align-items:center;gap:16px;margin-bottom:18px}
-  .logo img{width:64px;height:64px;border-radius:10px;object-fit:cover;box-shadow:0 6px 18px rgba(124,58,237,0.12)}
-  h1{font-size:20px;margin:0}
-  p.lead{color:var(--muted);margin:6px 0 0;font-size:13px}
-  .grid{display:grid;grid-template-columns:1fr 420px;gap:18px;margin-top:18px;align-items:start}
+      radial-gradient(900px 300px at 8% 8%, rgba(59,130,246,0.06), transparent),
+      linear-gradient(180deg,var(--bg-0),var(--bg-1));
+    color:var(--text); -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1100px;margin:36px auto;padding:28px}
+  /* subtle grid */
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;
+    background-image:linear-gradient(rgba(255,255,255,0.01) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.01) 1px, transparent 1px);
+    background-size:140px 140px,140px 140px;opacity:0.02}
+  .brand{display:flex;gap:14px;align-items:center;margin-bottom:14px}
+  .logo{width:72px;height:72px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg, rgba(91,33,182,0.12), rgba(59,130,246,0.08));box-shadow:0 8px 40px rgba(75,21,150,0.12)}
+  .logo img{width:60px;height:60px;object-fit:contain;border-radius:8px}
+  h1{margin:0;font-weight:700;color:var(--accent-b);font-size:20px}
+  .lead{color:var(--muted);font-size:13px;margin-top:2px}
+  .card{background:linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.008));border-radius:14px;padding:18px;border:1px solid rgba(255,255,255,0.02);box-shadow:0 12px 50px rgba(2,6,23,0.6)}
+  form{display:grid;grid-template-columns:1fr 420px;gap:20px;align-items:start}
+  .left,.right{padding:12px;border-radius:10px}
+  .left{background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);border:1px solid rgba(255,255,255,0.02)}
+  .right{background:linear-gradient(180deg, rgba(8,24,32,0.6), rgba(6,12,16,0.6));border:1px solid rgba(255,255,255,0.02)}
   label{display:block;color:var(--muted);font-size:13px;margin-top:12px}
-  input[type=text], textarea{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:var(--text);margin-top:8px}
+  input[type=text], input[type=email], textarea{width:100%;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:rgba(255,255,255,0.02);color:var(--text);margin-top:8px;outline:none}
+  input:focus, textarea:focus{box-shadow:0 8px 30px rgba(91,33,182,0.06);border-color:rgba(59,130,246,0.18)}
   textarea{min-height:96px;resize:vertical}
   .muted{color:var(--muted);font-size:13px;margin-top:10px}
-  #signature-pad{width:100%;height:220px;border-radius:8px;background:#f9fafb;display:block;touch-action:none;border:2px dashed rgba(255,255,255,0.08)}
-  .controls{display:flex;gap:10px;margin-top:10px;align-items:center;flex-wrap:wrap}
-  .btn{background:var(--accent);color:white;padding:10px 14px;border-radius:8px;border:0;cursor:pointer;font-weight:600}
-  .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted)}
+  /* signature pad dark */
+  #signature-pad{width:100%;height:220px;border-radius:10px;background:var(--sig-bg);display:block;touch-action:none;border:2px dashed rgba(91,33,182,0.12);box-shadow:0 6px 30px rgba(59,130,246,0.03) inset}
+  .controls{display:flex;gap:10px;margin-top:12px;align-items:center;flex-wrap:wrap}
+  .btn{background:linear-gradient(180deg,var(--accent-a),var(--accent-b));color:#fff;padding:10px 14px;border-radius:10px;border:0;cursor:pointer;font-weight:700;letter-spacing:0.3px;box-shadow:0 10px 30px rgba(75,21,150,0.08)}
+  .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted);font-weight:600}
   .btn.small{padding:8px 10px;font-size:14px}
-  .status{font-size:13px;color:var(--muted);margin-left:10px}
-  .nda-view{background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));padding:14px;border-radius:8px;height:600px;overflow:auto;border:1px solid rgba(255,255,255,0.02);color:#dfe9f6}
-  .nda-view h2{margin:0 0 8px;font-size:20px}
-  .nda-view p{line-height:1.4;color:#cfe3f7;font-size:13px}
-  .sig-small-wrap{display:flex;align-items:center;gap:20px;background:var(--panel);border:1px solid rgba(255,255,255,0.05);border-radius:10px;padding:12px 14px;margin-top:18px}
-  .sig-small-wrap span.label{font-size:13px;color:var(--muted)}
-  .sig-small-box{flex:0 0 auto;width:280px;height:80px;background:var(--sig-bg);border-radius:6px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.06)}
-  .sig-small-box img{max-width:100%;max-height:70px;border-radius:4px;object-fit:contain}
-  @media (max-width:980px){ .grid{grid-template-columns:1fr;} .nda-view{height:320px} #signature-pad{height:160px} .sig-small-box{width:240px;height:72px} }
-  /* status badge */
-  .ok { color: #33cc66; font-weight:700; margin-left:8px; }
-  .err { color: #ff6b6b; font-weight:700; margin-left:8px; }
+  .status{font-size:13px;color:var(--muted);margin-left:6px}
+  .sig-small-wrap{display:flex;align-items:center;gap:16px;margin-top:14px;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);border-radius:10px;padding:10px;border:1px solid rgba(255,255,255,0.02)}
+  .sig-small-box{width:240px;height:72px;background:#05060a;border-radius:6px;border:1px solid rgba(255,255,255,0.03);display:flex;align-items:center;justify-content:center}
+  .nda-view{height:820px;padding:18px;border-radius:8px;overflow:auto;color:#dfe9f6;border:1px solid rgba(255,255,255,0.02)}
+  .nda-view h2{text-align:center;margin:6px 0 12px;font-size:18px;color:#fff}
+  .nda-view p{font-size:13px;line-height:1.45;color:#cfe3f7}
+  footer.note{font-size:12px;color:var(--muted);margin-top:8px}
+  @media (max-width:980px){form{grid-template-columns:1fr}.nda-view{height:380px}#signature-pad{height:160px}.sig-small-box{width:200px;height:64px}}
 </style>
 </head>
 <body>
   <div class="wrap">
+    <div class="brand">
+      <div class="logo"><img src="logo.png" alt="SOKRP Logo" onerror="this.src='https://cdn.discordapp.com/attachments/1437638010903465984/1437953301130772582/SOKRP_Dev_Logo_2.png'"></div>
+      <div>
+        <h1>SOKRP Development • NDA Authorization Gateway</h1>
+        <p class="lead">Sign the internal NDA — the final signed document will be posted to SOKRP Development Management (Discord).</p>
+      </div>
+    </div>
+
     <div class="card">
-      <header>
-        <div class="logo"><img src="logo.png" onerror="this.src='https://cdn.discordapp.com/attachments/1437638010903465984/1437953301130772582/SOKRP_Dev_Logo_2.png'"></div>
-        <div>
-          <h1>State of Kentucky Roleplay — NDA Signing</h1>
-          <p class="lead">Please read the NDA, fill details, sign, and submit. Your signed NDA was disclosed to SOKRP Development Management.</p>
-        </div>
-      </header>
-
-      <div class="grid">
+      <form id="ndaForm" onsubmit="return false;">
         <div class="left">
-          <label>Full Roleplay Name</label>
-          <input id="name" type="text" placeholder="Your Full Roleplay Name">
+          <label for="name">Full Roleplay Name</label>
+          <input id="name" type="text" placeholder="First Last">
 
-          <label>Discord ID</label>
+          <label for="discordId">Discord ID</label>
           <input id="discordId" type="text" placeholder="123456789012345678">
 
-          <label>Team / Role</label>
+          <label for="email">Email (optional)</label>
+          <input id="email" type="email" placeholder="you@example.com">
+
+          <label for="role">Team / Role</label>
           <input id="role" type="text" placeholder="Software / Graphics / Media">
 
-          <label>Notes (optional)</label>
-          <textarea id="notes" placeholder="Any notes..."></textarea>
+          <label for="notes">Notes (optional)</label>
+          <textarea id="notes" placeholder="Optional notes..."></textarea>
 
           <label>Signature (draw below)</label>
           <canvas id="signature-pad" aria-label="signature pad"></canvas>
 
           <div class="controls">
-            <button id="clear" class="btn ghost small">Clear</button>
-            <button id="undo" class="btn ghost small">Undo</button>
+            <button id="clear" type="button" class="btn ghost small">Clear</button>
+            <button id="undo" type="button" class="btn ghost small">Undo</button>
             <div style="flex:1"></div>
-            <button id="submitBtn" class="btn">Generate & Send NDA Image</button>
+            <button id="submitBtn" type="button" class="btn">Submit NDA</button>
             <div id="status" class="status"></div>
           </div>
 
-          <div class="muted">By submitting you agree this signature indicates acceptance.</div>
-
-          <div class="sig-small-wrap">
-            <span class="label">Signature preview:</span>
+          <div class="sig-small-wrap" aria-hidden>
+            <div class="label">Signature preview</div>
             <div class="sig-small-box" id="sigSmallBox"><span style="color:var(--muted);font-size:13px">No signature yet</span></div>
           </div>
+
+          <div class="muted" style="margin-top:10px">By submitting, you acknowledge this signature indicates acceptance.</div>
         </div>
 
-        <aside class="right">
-          <div class="nda-view" id="ndaPreview">
-            <h2>NON-DISCLOSURE AGREEMENT</h2>
+        <div class="right">
+          <div class="nda-view" id="ndaPreview" role="document" aria-label="nda preview">
+            <div style="text-align:center">
+              <img id="previewLogo" src="logo.png" alt="logo" style="width:84px;height:84px;border-radius:12px" onerror="this.src='https://cdn.discordapp.com/attachments/1437638010903465984/1437953301130772582/SOKRP_Dev_Logo_2.png'">
+              <h2>NON-DISCLOSURE AGREEMENT</h2>
+            </div>
+
+            <p style="color:var(--muted);font-size:13px;margin:6px 0" id="ndadateLabel">Date: <span id="ndadate"></span></p>
+
             <p><strong>PARTIES</strong><br>
-            This Non-Disclosure Agreement is entered into on <span id="ndadate"></span>, by <strong>State of Kentucky Roleplay Development Command</strong> and between <strong><span id="previewName">[Enter your name here]</span></strong>.</p>
+            This Non-Disclosure Agreement is entered into on <span id="ndadate2"></span>, by State of Kentucky Roleplay Development Command and between <strong id="previewName">[Enter name]</strong>.</p>
 
             <p><strong>CONFIDENTIAL INFORMATION</strong><br>
             The Receiving Party agrees not to disclose, copy, clone, or modify any confidential information related to the SOKRP and agrees not to use any such information without obtaining consent.</p>
@@ -107,21 +141,33 @@
             This Agreement is not transferable and may only be transferred by written consent provided by both Parties.</p>
 
             <p><strong>SIGNATURE AND DATE</strong><br>
-            The Parties hereby agree to the terms and conditions set forth in this Agreement and such is demonstrated by their signatures below:</p>
+            The Parties agree to the terms and conditions set forth in this Agreement and such is demonstrated by their signatures below:</p>
 
-            <p><em>SOKRP Development Team Management</em></p>
-            <hr style="opacity:0.06;border-color:rgba(255,255,255,0.04)">
-            <p><strong>Signed by:</strong> <span id="sigPreviewName">[NAME]</span></p>
-            <p><strong>Discord ID:</strong> <span id="sigPreviewDiscord">[DISCORD ID]</span></p>
-            <div id="sigPreviewImage" style="margin-top:8px"></div>
-            <p style="margin-top:10px;color:var(--muted);font-size:12px">Note: A single NDA image will be posted to Discord as the official record.</p>
+            <p style="margin-top:12px"><em>SOKRP Development Team Management</em></p>
+
+            <hr style="opacity:0.04">
+
+            <div style="display:flex;gap:12px;align-items:flex-start">
+              <div style="flex:1">
+                <p style="margin:6px 0;color:var(--muted)"><strong>Signed by:</strong> <span id="sigPreviewName">[NAME]</span></p>
+                <p style="margin:6px 0;color:var(--muted)"><strong>Discord ID:</strong> <span id="sigPreviewDiscord">[DISCORD ID]</span></p>
+                <p style="margin:6px 0;color:var(--muted)"><strong>Email:</strong> <span id="sigPreviewEmail">[EMAIL]</span></p>
+                <p style="margin:6px 0;color:var(--muted)"><strong>Role:</strong> <span id="sigPreviewRole">[ROLE]</span></p>
+                <p style="margin:6px 0;color:var(--muted)"><strong>Notes:</strong> <span id="sigPreviewNotes">-</span></p>
+              </div>
+              <div style="width:44%;display:flex;justify-content:flex-end;align-items:flex-start">
+                <div id="sigPreviewImage" style="width:260px;height:96px;background:var(--sig-bg);border-radius:6px;border:1px solid rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:center"></div>
+              </div>
+            </div>
+
+            <p style="margin-top:12px;color:var(--muted);font-size:12px">Click <strong>Submit NDA</strong> to post the full document image to the SOKRP Development Discord channel as the official record.</p>
           </div>
-        </aside>
-      </div>
+        </div>
+      </form>
     </div>
   </div>
 
-  <!-- hidden render canvas -->
+  <!-- hidden render canvas (document image) -->
   <canvas id="renderCanvas" width="1200" height="1400" style="display:none"></canvas>
 
 <script>
@@ -131,51 +177,54 @@ const LOGO_SRC_LOCAL = "logo.png";
 const LOGO_FALLBACK = "https://cdn.discordapp.com/attachments/1437638010903465984/1437953301130772582/SOKRP_Dev_Logo_2.png";
 
 /* ---------------- DOM ---------------- */
-const ndadateEl = document.getElementById('ndadate');
+const ndadate = document.getElementById('ndadate');
+const ndadate2 = document.getElementById('ndadate2');
 const nameEl = document.getElementById('name');
 const discordEl = document.getElementById('discordId');
+const emailEl = document.getElementById('email');
 const roleEl = document.getElementById('role');
 const notesEl = document.getElementById('notes');
 const statusEl = document.getElementById('status');
 const submitBtn = document.getElementById('submitBtn');
+
 const sigSmallBox = document.getElementById('sigSmallBox');
 const sigPreviewName = document.getElementById('sigPreviewName');
 const sigPreviewDiscord = document.getElementById('sigPreviewDiscord');
+const sigPreviewEmail = document.getElementById('sigPreviewEmail');
+const sigPreviewRole = document.getElementById('sigPreviewRole');
+const sigPreviewNotes = document.getElementById('sigPreviewNotes');
 const previewName = document.getElementById('previewName');
 const sigPreviewImage = document.getElementById('sigPreviewImage');
 
-ndadateEl.textContent = new Date().toLocaleDateString();
+ndadate.textContent = new Date().toLocaleDateString();
+ndadate2.textContent = new Date().toLocaleDateString();
 
-/* ---------------- Signature pad (high-DPI aware) ---------------- */
+/* ---------------- Signature pad (DPI-aware, robust) ---------------- */
 const canvas = document.getElementById('signature-pad');
 const ctx = canvas.getContext('2d');
 
 function resizeSignatureCanvas(){
   const ratio = window.devicePixelRatio || 1;
-  // CSS size (get computed)
   const rect = canvas.getBoundingClientRect();
-  const cssWidth = rect.width || 600;
-  const cssHeight = rect.height || 220;
-  // set drawing buffer
-  canvas.width = Math.round(cssWidth * ratio);
-  canvas.height = Math.round(cssHeight * ratio);
-  // set transform so we draw in CSS pixel coordinates
-  ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-  // fill background white
-  ctx.fillStyle = '#f9fafb';
-  ctx.fillRect(0,0,cssWidth,cssHeight);
-  ctx.lineWidth = 2;
-  ctx.strokeStyle = '#000';
+  const cssW = Math.max(300, rect.width || 600);
+  const cssH = Math.max(120, rect.height || 220);
+  canvas.width = Math.round(cssW * ratio);
+  canvas.height = Math.round(cssH * ratio);
+  ctx.setTransform(ratio,0,0,ratio,0,0);
+  // fill dark background (signature area looks dark)
+  ctx.fillStyle = '#04060a';
+  ctx.fillRect(0,0,cssW,cssH);
+  ctx.lineWidth = 2.2;
+  ctx.strokeStyle = '#e6eef8'; // light stroke so signature appears on dark pad
   ctx.lineCap = 'round';
 }
 resizeSignatureCanvas();
 
-/* store strokes in CSS coordinate space (client coords relative to canvas) */
+/* store strokes in CSS (client) coords so they persist on resize */
 let drawing = false;
 let currentPath = [];
 const paths = [];
 
-/* get pointer pos in CSS coords */
 function getPos(e){
   const rect = canvas.getBoundingClientRect();
   const clientX = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
@@ -183,41 +232,38 @@ function getPos(e){
   return { x: clientX - rect.left, y: clientY - rect.top };
 }
 
-/* on resize we must redraw stored paths (they are in CSS coords) */
 function redrawPaths(){
-  // clear & background
   const rect = canvas.getBoundingClientRect();
-  ctx.fillStyle = '#f9fafb';
+  ctx.fillStyle = '#04060a';
   ctx.fillRect(0,0,rect.width,rect.height);
-  ctx.lineWidth = 2;
-  ctx.strokeStyle = '#000';
+  ctx.lineWidth = 2.2;
+  ctx.strokeStyle = '#e6eef8';
   ctx.lineCap = 'round';
   for(const s of paths){
     if(!s.length) continue;
     ctx.beginPath();
     ctx.moveTo(s[0].x, s[0].y);
-    for(let i=1;i<s.length;i++) ctx.lineTo(s[i].x, s[i].y);
+    for(let i=1;i<s.length;i++) ctx.lineTo(s[i].x,s[i].y);
     ctx.stroke();
   }
 }
 
-/* pointer events */
-canvas.addEventListener('pointerdown', e => {
+canvas.addEventListener('pointerdown', (e) => {
   drawing = true;
   currentPath = [];
   const p = getPos(e);
   currentPath.push(p);
   ctx.beginPath();
-  ctx.moveTo(p.x, p.y);
+  ctx.moveTo(p.x,p.y);
 });
-canvas.addEventListener('pointermove', e => {
+canvas.addEventListener('pointermove', (e) => {
   if(!drawing) return;
   const p = getPos(e);
   currentPath.push(p);
-  ctx.lineTo(p.x, p.y);
+  ctx.lineTo(p.x,p.y);
   ctx.stroke();
 });
-canvas.addEventListener('pointerup', e => {
+canvas.addEventListener('pointerup', (e) => {
   if(!drawing) return;
   drawing = false;
   paths.push(currentPath.slice());
@@ -226,62 +272,48 @@ canvas.addEventListener('pointerup', e => {
 });
 canvas.addEventListener('pointercancel', ()=>{ drawing=false; });
 
-/* keep strokes after resize */
-window.addEventListener('resize', () => {
-  // preserve drawn paths, resize canvas and redraw them
-  resizeSignatureCanvas();
-  redrawPaths();
-  // update small preview from new coords
-  updateSmallPreview();
-});
-
 /* clear / undo */
 document.getElementById('clear').addEventListener('click', () => {
-  paths.length = 0;
-  currentPath = [];
-  resizeSignatureCanvas();
-  redrawPaths();
+  paths.length = 0; currentPath = [];
+  resizeSignatureCanvas(); redrawPaths();
   sigSmallBox.innerHTML = '<span style="color:var(--muted);font-size:13px">No signature yet</span>';
   sigPreviewImage.innerHTML = '';
 });
 document.getElementById('undo').addEventListener('click', () => {
-  paths.pop();
-  resizeSignatureCanvas();
-  redrawPaths();
-  updateSmallPreview();
-  updatePreviewText();
+  paths.pop(); resizeSignatureCanvas(); redrawPaths(); updateSmallPreview(); updatePreviewText();
 });
 
-/* convert stored paths into a dataURL (draw onto tmp canvas) */
-function signaturePathsToDataURL() {
-  if(paths.length === 0) return null;
-  const w = canvas.clientWidth;
-  const h = canvas.clientHeight;
+/* keep strokes across resize */
+window.addEventListener('resize', () => { resizeSignatureCanvas(); redrawPaths(); updateSmallPreview(); });
+
+/* convert stored paths into an image data URL (transparent background, stroke color parameter) */
+function signaturePathsToCanvas({minX=0,minY=0,w=1,h=1,stroke='#e6eef8'}) {
   const tmp = document.createElement('canvas');
-  tmp.width = w;
-  tmp.height = h;
+  tmp.width = Math.max(1, Math.round(w));
+  tmp.height = Math.max(1, Math.round(h));
   const c = tmp.getContext('2d');
-  c.fillStyle = '#f9fafb'; c.fillRect(0,0,w,h);
-  c.strokeStyle = '#000'; c.lineWidth = 2; c.lineCap = 'round';
+  // transparent background — we'll draw strokes with provided color
+  c.clearRect(0,0,tmp.width,tmp.height);
+  c.strokeStyle = stroke; c.lineWidth = 2.2; c.lineCap='round';
+  // draw each path offset by -minX,-minY
   for(const s of paths){
     if(!s.length) continue;
     c.beginPath();
-    c.moveTo(s[0].x, s[0].y);
-    for(let i=1;i<s.length;i++) c.lineTo(s[i].x, s[i].y);
+    c.moveTo(s[0].x - minX, s[0].y - minY);
+    for(let i=1;i<s.length;i++) c.lineTo(s[i].x - minX, s[i].y - minY);
     c.stroke();
   }
-  return tmp.toDataURL('image/png');
+  return tmp;
 }
 
-/* small preview: tightly crop bounding box and draw into fixed small canvas */
+/* small preview: crop bounding box tightly and render into small rectangle */
 function updateSmallPreview(){
-  if(paths.length===0){
+  if(paths.length === 0){
     sigSmallBox.innerHTML = '<span style="color:var(--muted);font-size:13px">No signature yet</span>';
-    sigPreviewImage.innerHTML = '';
-    return;
+    sigPreviewImage.innerHTML = ''; return;
   }
   const all = paths.flat();
-  let minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity;
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
   for(const p of all){
     if(p.x < minX) minX = p.x;
     if(p.y < minY) minY = p.y;
@@ -293,66 +325,50 @@ function updateSmallPreview(){
   minY = Math.max(0, minY - pad);
   maxX = Math.min(canvas.clientWidth, maxX + pad);
   maxY = Math.min(canvas.clientHeight, maxY + pad);
-  const sigW = Math.max(1, maxX - minX);
-  const sigH = Math.max(1, maxY - minY);
+  const sigW = Math.max(1, maxX - minX), sigH = Math.max(1, maxY - minY);
 
-  const outW = 280, outH = 80;
-  const tmp = document.createElement('canvas');
-  tmp.width = outW; tmp.height = outH;
-  const c = tmp.getContext('2d');
-  c.fillStyle = '#111418'; c.fillRect(0,0,outW,outH);
-  c.strokeStyle = '#e6eef8'; c.lineWidth = 2; c.lineCap='round';
+  const outW = 240, outH = 72;
+  const tmp = signaturePathsToCanvas({minX,minY,w:sigW,h:sigH,stroke:'#e6eef8'});
+  // scale into outW,outH with dark background
+  const out = document.createElement('canvas'); out.width = outW; out.height = outH;
+  const oc = out.getContext('2d');
+  oc.fillStyle = '#02040a'; oc.fillRect(0,0,outW,outH);
+  const scale = Math.min((outW - 12)/sigW, (outH - 12)/sigH);
+  const dx = (outW - sigW*scale)/2;
+  const dy = (outH - sigH*scale)/2;
+  oc.drawImage(tmp, 0,0,sigW,sigH, dx,dy, sigW*scale, sigH*scale);
+  const img = new Image(); img.src = out.toDataURL('image/png'); img.alt = 'signature preview';
+  sigSmallBox.innerHTML = ''; sigSmallBox.appendChild(img);
 
-  const scale = Math.min((outW - 12) / sigW, (outH - 12) / sigH);
-  const dx = (outW - sigW * scale) / 2;
-  const dy = (outH - sigH * scale) / 2;
-  c.save();
-  c.translate(dx - minX * scale, dy - minY * scale);
-  c.scale(scale, scale);
-  for(const s of paths){
-    if(!s.length) continue;
-    c.beginPath();
-    c.moveTo(s[0].x, s[0].y);
-    for(let i=1;i<s.length;i++) c.lineTo(s[i].x, s[i].y);
-    c.stroke();
-  }
-  c.restore();
-  const img = new Image();
-  img.src = tmp.toDataURL('image/png');
-  img.alt = "signature preview";
-  sigSmallBox.innerHTML = '';
-  sigSmallBox.appendChild(img);
-
-  // also update NDA preview small signature
+  // update preview panel signature
   sigPreviewImage.innerHTML = '';
-  const bigImg = new Image();
-  bigImg.src = tmp.toDataURL('image/png');
-  bigImg.style.maxWidth = '320px';
-  bigImg.style.border = '1px solid rgba(255,255,255,0.06)';
-  bigImg.style.borderRadius = '4px';
-  sigPreviewImage.appendChild(bigImg);
+  const big = new Image();
+  big.src = out.toDataURL('image/png');
+  big.style.maxWidth = '100%'; big.style.maxHeight = '88px'; big.style.borderRadius = '3px';
+  sigPreviewImage.appendChild(big);
 }
 
-/* preview text update */
+/* preview text sync */
 function updatePreviewText(){
-  previewName.textContent = nameEl.value || '[Enter your name here]';
-  sigPreviewName.textContent = nameEl.value || '[NAME]';
-  sigPreviewDiscord.textContent = discordEl.value || '[DISCORD ID]';
+  const n = nameEl.value.trim();
+  previewName.textContent = n || '[Enter name]';
+  sigPreviewName.textContent = n || '[NAME]';
+  sigPreviewDiscord.textContent = discordEl.value.trim() || '[DISCORD ID]';
+  sigPreviewEmail.textContent = emailEl.value.trim() || '[EMAIL]';
+  sigPreviewRole.textContent = roleEl.value.trim() || '[ROLE]';
+  sigPreviewNotes.textContent = notesEl.value.trim() || '-';
 }
 
-/* ---------------- Render NDA to hidden canvas & upload ---------------- */
+/* ---------------- Render NDA to hidden canvas ---------------- */
 const renderCanvas = document.getElementById('renderCanvas');
 const rctx = renderCanvas.getContext('2d');
 
-/* load logo (local with fallback) */
-async function loadLogo(){
-  return new Promise(resolve => {
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
+function loadLogo(){
+  return new Promise((resolve) => {
+    const img = new Image(); img.crossOrigin='anonymous';
     img.onload = () => resolve(img);
     img.onerror = () => {
-      const fb = new Image();
-      fb.crossOrigin = 'anonymous';
+      const fb = new Image(); fb.crossOrigin='anonymous';
       fb.onload = () => resolve(fb);
       fb.src = LOGO_FALLBACK;
     };
@@ -360,8 +376,9 @@ async function loadLogo(){
   });
 }
 
-/* full NDA text */
-const FULL_NDA_TEXT = `PARTIES
+const FULL_NDA_TEXT = `NON-DISCLOSURE AGREEMENT
+
+PARTIES
 This Non-Disclosure Agreement is entered into on (enter date), by State of Kentucky Roleplay Development Command and between (Enter your name here).
 
 CONFIDENTIAL INFORMATION
@@ -378,218 +395,149 @@ SIGNATURE AND DATE
 The Parties hereby agree to the terms and conditions set forth in this Agreement and such is demonstrated by their signatures below:
 
 SOKRP Development Team Management
-
 `;
 
-/* wrap helper */
-function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+/* simple wrap helper */
+function wrapText(ctx, text, x, y, maxWidth, lineHeight){
   const paragraphs = text.split('\n');
-  for (let p = 0; p < paragraphs.length; p++){
+  for(let p=0;p<paragraphs.length;p++){
     let words = paragraphs[p].split(' ');
     let line = '';
-    for (let n = 0; n < words.length; n++) {
+    for(let n=0;n<words.length;n++){
       const testLine = line + words[n] + ' ';
-      const metrics = ctx.measureText(testLine);
-      const testWidth = metrics.width;
-      if (testWidth > maxWidth && n > 0) {
-        ctx.fillText(line, x, y);
-        line = words[n] + ' ';
-        y += lineHeight;
-      }
-      else {
+      const testWidth = ctx.measureText(testLine).width;
+      if(testWidth > maxWidth && n>0){
+        ctx.fillText(line, x, y); line = words[n] + ' '; y += lineHeight;
+      } else {
         line = testLine;
       }
     }
-    ctx.fillText(line, x, y);
-    y += lineHeight;
+    ctx.fillText(line, x, y); y += lineHeight;
   }
   return y;
 }
 
-/* draw NDA */
-async function drawNDAToCanvas({ name, discordId, role, notes, dateStr }) {
-  // canvas already set to 1200x1400
-  const W = renderCanvas.width;
-  const H = renderCanvas.height;
-
-  // clear bg
-  rctx.fillStyle = "#0b1220";
-  rctx.fillRect(0,0,W,H);
-
-  // document card (slightly inset)
-  const margin = 40;
-  const docX = margin;
-  const docY = margin;
-  const docW = W - margin*2;
-  const docH = H - margin*2;
-  rctx.fillStyle = "#0c1c28";
-  rctx.fillRect(docX, docY, docW, docH);
-
-  // load logo
+/* draw NDA to renderCanvas */
+async function drawNDAToCanvas({ name, discordId, email, role, notes, dateStr }){
+  const W = renderCanvas.width, H = renderCanvas.height;
+  // background
+  rctx.fillStyle = '#071018'; rctx.fillRect(0,0,W,H);
+  // doc card
+  const margin = 40; const docX = margin, docY = margin, docW = W - margin*2, docH = H - margin*2;
+  rctx.fillStyle = '#071827'; rctx.fillRect(docX, docY, docW, docH);
+  // logo
   const logo = await loadLogo();
   const logoSize = 120;
   rctx.drawImage(logo, docX + (docW - logoSize)/2, docY + 28, logoSize, logoSize);
-
   // title
-  rctx.fillStyle = "#e6eef8";
-  rctx.font = "700 28px Inter, Arial";
-  rctx.textAlign = "center";
-  rctx.fillText("NON-DISCLOSURE AGREEMENT", docX + docW/2, docY + 28 + logoSize + 36);
-
-  // meta
-  rctx.font = "13px Inter, Arial";
-  rctx.fillStyle = "#9fb6c9";
-  rctx.textAlign = "left";
-  rctx.fillText(`Date: ${dateStr}`, docX + 36, docY + 28 + logoSize + 72);
-
+  rctx.fillStyle = '#e6eef8'; rctx.font = '700 26px Inter, Arial'; rctx.textAlign = 'center';
+  rctx.fillText('NON-DISCLOSURE AGREEMENT', docX + docW/2, docY + 28 + logoSize + 48);
+  // date
+  rctx.font = '13px Inter, Arial'; rctx.fillStyle = '#9fb6c9'; rctx.textAlign = 'left';
+  rctx.fillText(`Date: ${dateStr}`, docX + 44, docY + 28 + logoSize + 80);
   // divider
-  rctx.strokeStyle = "rgba(255,255,255,0.04)";
-  rctx.lineWidth = 1;
-  rctx.beginPath();
-  rctx.moveTo(docX + 36, docY + 28 + logoSize + 82);
-  rctx.lineTo(docX + docW - 36, docY + 28 + logoSize + 82);
-  rctx.stroke();
-
+  rctx.strokeStyle = 'rgba(255,255,255,0.04)'; rctx.beginPath();
+  rctx.moveTo(docX + 44, docY + 28 + logoSize + 96); rctx.lineTo(docX + docW - 44, docY + 28 + logoSize + 96); rctx.stroke();
   // body
-  const bodyX = docX + 36;
-  let cursorY = docY + 28 + logoSize + 110;
-  rctx.fillStyle = "#dfe9f6";
-  rctx.font = "13px Inter, Arial";
-  rctx.textAlign = "left";
-  const replaced = FULL_NDA_TEXT.replace("(enter date)", dateStr).replace("(Enter your name here)", name || '[NAME]');
-  cursorY = wrapText(rctx, replaced, bodyX, cursorY, docW - 72, 20);
+  let cursorY = docY + 28 + logoSize + 120;
+  const bodyX = docX + 44; const bodyW = docW - 88;
+  rctx.fillStyle = '#dfe9f6'; rctx.font='13px Inter, Arial'; rctx.textAlign='left';
+  const replaced = FULL_NDA_TEXT.replace('(enter date)', dateStr).replace('(Enter your name here)', name || '[NAME]');
+  cursorY = wrapText(rctx, replaced, bodyX, cursorY, bodyW, 20);
 
-// signature block (sit directly under the body text)
-const signBoxH = 160;
-const gap = 40;  
-const signBoxY = cursorY + gap;
+  // signature block directly under text but kept inside bottom margin
+  const signBoxH = 160; const gap = 12;
+  let signBoxY = cursorY + gap;
+  const maxBottom = docY + docH - 48 - signBoxH;
+  if(signBoxY > maxBottom) signBoxY = maxBottom;
+  if(signBoxY < docY + 220) signBoxY = docY + 220;
 
-rctx.fillStyle = "#08151c";
-rctx.fillRect(bodyX, signBoxY, docW - 72, signBoxH);
-rctx.strokeStyle = "rgba(255,255,255,0.06)";
-rctx.strokeRect(bodyX, signBoxY, docW - 72, signBoxH);
+  // signature container
+  rctx.fillStyle = '#08151c'; rctx.fillRect(bodyX, signBoxY, bodyW, signBoxH);
+  rctx.strokeStyle = 'rgba(255,255,255,0.06)'; rctx.strokeRect(bodyX, signBoxY, bodyW, signBoxH);
 
-  // left details
-  rctx.fillStyle = "#9fb6c9";
-  rctx.font = "13px Inter, Arial";
-  let ly = signBoxY + 28;
-  rctx.fillText("Signed by:", bodyX + 12, ly);
-  rctx.fillStyle = "#e6eef8"; rctx.font="700 15px Inter, Arial";
-  rctx.fillText(name, bodyX + 110, ly);
+  // left details column
+  rctx.fillStyle = '#9fb6c9'; rctx.font='13px Inter, Arial';
+  let ly = signBoxY + 30;
+  rctx.fillText('Signed by:', bodyX + 12, ly);
+  rctx.fillStyle = '#e6eef8'; rctx.font='700 15px Inter, Arial'; rctx.fillText(name || '[NAME]', bodyX + 120, ly);
 
-  ly += 26;
-  rctx.font = "13px Inter, Arial"; rctx.fillStyle="#9fb6c9";
-  rctx.fillText("Discord ID:", bodyX + 12, ly);
-  rctx.fillStyle = "#e6eef8"; rctx.fillText(discordId, bodyX + 110, ly);
+  ly += 26; rctx.font='13px Inter, Arial'; rctx.fillStyle='#9fb6c9';
+  rctx.fillText('Discord ID:', bodyX + 12, ly);
+  rctx.fillStyle = '#e6eef8'; rctx.fillText(discordId || '[DISCORD ID]', bodyX + 120, ly);
 
-  ly += 26;
-  rctx.fillStyle="#9fb6c9"; rctx.fillText("Role:", bodyX + 12, ly);
-  rctx.fillStyle="#e6eef8"; rctx.fillText(role || 'N/A', bodyX + 110, ly);
+  ly += 26; rctx.fillStyle='#9fb6c9'; rctx.fillText('Email:', bodyX + 12, ly);
+  rctx.fillStyle='#e6eef8'; rctx.fillText(email || 'N/A', bodyX + 120, ly);
 
-  ly += 26;
-  rctx.fillStyle="#9fb6c9"; rctx.fillText("Notes:", bodyX + 12, ly);
-  rctx.fillStyle="#e6eef8";
-  wrapText(rctx, notes || 'N/A', bodyX + 110, ly, (docW - 72) - 240, 18);
+  ly += 26; rctx.fillStyle='#9fb6c9'; rctx.fillText('Role:', bodyX + 12, ly);
+  rctx.fillStyle='#e6eef8'; rctx.fillText(role || 'N/A', bodyX + 120, ly);
 
-  // signature darker box on right
-  const sigBoxW = 400;
-  const sigBoxX = bodyX + (docW - 72) - sigBoxW - 12;
-  const sigBoxY = signBoxY + 12;
-  const sigBoxH2 = 120;
-  rctx.fillStyle = "#030a0f"; // darker
-  rctx.fillRect(sigBoxX, sigBoxY, sigBoxW, sigBoxH2);
-  rctx.strokeStyle = "rgba(255,255,255,0.12)";
-  rctx.strokeRect(sigBoxX, sigBoxY, sigBoxW, sigBoxH2);
+  ly += 28; rctx.fillStyle='#9fb6c9'; rctx.fillText('Notes:', bodyX + 12, ly);
+  rctx.fillStyle='#e6eef8'; wrapText(rctx, (notes && notes.trim()) ? notes : 'N/A', bodyX + 120, ly, bodyW - 260, 16);
 
-  rctx.font = "12px Inter, Arial"; rctx.fillStyle = "#7fa4bc";
-  rctx.fillText("Signature", sigBoxX + 8, sigBoxY - 6);
+  // signature dark box on right
+  const sigBoxW = 420; const sigBoxX = bodyX + bodyW - sigBoxW - 12; const sigBoxY = signBoxY + 12; const sigBoxH2 = 120;
+  rctx.fillStyle = '#02080b'; rctx.fillRect(sigBoxX, sigBoxY, sigBoxW, sigBoxH2);
+  rctx.strokeStyle = 'rgba(255,255,255,0.08)'; rctx.strokeRect(sigBoxX, sigBoxY, sigBoxW, sigBoxH2);
+  rctx.font='12px Inter, Arial'; rctx.fillStyle='#7fa4bc'; rctx.fillText('Signature', sigBoxX + 8, sigBoxY - 6);
 
-  // if signature exists, crop & draw it into the darker box
+  // render signature if present by re-playing paths into a temp canvas (white strokes)
   if(paths.length > 0){
     const all = paths.flat();
     const minX = Math.max(0, Math.min(...all.map(p=>p.x)));
     const minY = Math.max(0, Math.min(...all.map(p=>p.y)));
     const maxX = Math.min(canvas.clientWidth, Math.max(...all.map(p=>p.x)));
     const maxY = Math.min(canvas.clientHeight, Math.max(...all.map(p=>p.y)));
-    const sigW = Math.max(1, maxX - minX);
-    const sigH = Math.max(1, maxY - minY);
-
-    // get data url of the full signature (in CSS coords)
-    const raw = signaturePathsToDataURL();
-    // create temp and draw cropped region
-    const tmp = document.createElement('canvas');
-    tmp.width = sigW;
-    tmp.height = sigH;
-    const tctx = tmp.getContext('2d');
-
-    await new Promise(res => {
-      const img = new Image();
-      img.onload = () => {
-        // draw source image then crop
-        tctx.drawImage(img, minX, minY, sigW, sigH, 0, 0, sigW, sigH);
-        res();
-      };
-      img.src = raw;
-    });
-
-    // scale to fit signature box
+    const sigW = Math.max(1, maxX - minX), sigH = Math.max(1, maxY - minY);
+    const tmp = signaturePathsToCanvas({minX,minY,w:sigW,h:sigH,stroke:'#e6eef8'});
+    // scale to fit
     const padding = 12;
-    const targetW = sigBoxW - padding*2;
-    const targetH = sigBoxH2 - padding*2;
+    const targetW = sigBoxW - padding*2; const targetH = sigBoxH2 - padding*2;
     const scale = Math.min(targetW / sigW, targetH / sigH);
-    const drawW = sigW * scale;
-    const drawH = sigH * scale;
-    const drawX = sigBoxX + (sigBoxW - drawW) / 2;
-    const drawY = sigBoxY + (sigBoxH2 - drawH) / 2;
-
-    rctx.drawImage(tmp, 0, 0, sigW, sigH, drawX, drawY, drawW, drawH);
-
-    // date under signature
-    rctx.fillStyle = "rgba(159,182,201,0.8)";
-    rctx.font = "12px Inter, Arial";
-    rctx.fillText(`Date: ${dateStr}`, drawX, drawY + drawH + 18);
+    const drawW = sigW * scale; const drawH = sigH * scale;
+    const drawX = sigBoxX + (sigBoxW - drawW)/2; const drawY = sigBoxY + (sigBoxH2 - drawH)/2;
+    rctx.drawImage(tmp, 0,0,sigW,sigH, drawX, drawY, drawW, drawH);
+    rctx.fillStyle = 'rgba(159,182,201,0.8)'; rctx.font='12px Inter, Arial'; rctx.fillText(`Date: ${dateStr}`, drawX, drawY + drawH + 18);
   } else {
-    rctx.fillStyle = "rgba(120,140,150,0.5)";
-    rctx.font = "13px Inter, Arial";
-    rctx.fillText("No signature provided", sigBoxX + 12, sigBoxY + 28);
+    rctx.fillStyle='rgba(120,140,150,0.5)'; rctx.font='13px Inter, Arial'; rctx.fillText('No signature provided', sigBoxX + 12, sigBoxY + 32);
   }
 
   // footer
-  rctx.font = "12px Inter, Arial";
-  rctx.fillStyle = "rgba(180,200,220,0.4)";
-  rctx.fillText("© 2025 State of Kentucky Roleplay — All Rights Reserved.", docX + 24, docY + docH - 10);
+  rctx.font='12px Inter, Arial'; rctx.fillStyle='rgba(180,200,220,0.32)';
+  rctx.fillText('© 2025 State of Kentucky Roleplay — All Rights Reserved.', docX + 20, docY + docH - 14);
 }
 
 /* ---------------- Submit flow: render & upload ---------------- */
-async function submitNDA() {
+async function submitNDA(){
   const name = nameEl.value.trim();
   const discordId = discordEl.value.trim();
+  const email = emailEl.value.trim();
   const role = roleEl.value.trim();
   const notes = notesEl.value.trim();
   const dateStr = new Date().toLocaleDateString();
 
-  if(!name){ alert('Please enter your roleplay name.'); nameEl.focus(); return; }
+  if(!name){ alert('Please enter your full roleplay name.'); nameEl.focus(); return; }
   if(!discordId){ alert('Please enter your Discord ID.'); discordEl.focus(); return; }
   if(paths.length === 0){ alert('Please provide a signature before submitting.'); return; }
 
   submitBtn.disabled = true;
-  statusEl.innerHTML = 'Rendering NDA image...';
+  statusEl.textContent = 'Rendering signed document...';
 
-  try {
-    await drawNDAToCanvas({ name, discordId, role, notes, dateStr });
-
-    // convert to blob
+  try{
+    await drawNDAToCanvas({ name, discordId, email, role, notes, dateStr });
     const blob = await new Promise(res => renderCanvas.toBlob(res, 'image/png', 0.95));
+    statusEl.textContent = 'Uploading to Discord...';
 
-    statusEl.innerHTML = 'Sending to Deveopment CoC';
-
+    // prettier embed: short description + attached image (full NDA)
     const embed = {
-      title: "📝 NDA Disclosure Recorded",
+      title: "📝 NDA Recorded — SOKRP Development",
+      description: `A new NDA was recorded for **${name}**. The signed document image is attached below as the official copy.`,
       color: 0x6d28d9,
       thumbnail: { url: LOGO_FALLBACK },
       fields: [
-        { name: "Name", value: name, inline: true },
-        { name: "Discord ID", value: discordId, inline: true },
+        { name: "Name", value: name || '—', inline: true },
+        { name: "Discord ID", value: discordId || '—', inline: true },
+        { name: "Email", value: email || '—', inline: true },
         { name: "Role", value: role || 'N/A', inline: true },
         { name: "Notes", value: notes || 'N/A', inline: false }
       ],
@@ -602,28 +550,25 @@ async function submitNDA() {
     form.append('file', blob, `${name.replace(/\s+/g,'_')}_NDA.png`);
 
     const resp = await fetch(WEBHOOK_URL, { method: 'POST', body: form });
-    if(!resp.ok) {
+    if(!resp.ok){
       const txt = await resp.text();
       throw new Error(txt || 'webhook failed');
     }
 
-    statusEl.innerHTML = '<span class="ok">Submitted — check Discord.</span>';
-    updatePreviewText();
-    updateSmallPreview();
-  } catch (err) {
+    statusEl.textContent = '✅ Submitted — check Discord.';
+    updatePreviewText(); updateSmallPreview();
+  } catch(err) {
     console.error(err);
-    statusEl.innerHTML = `<span class="err">Upload failed: ${err.message}</span>`;
+    statusEl.textContent = '❌ Upload failed';
     alert('Upload failed: ' + (err.message || err));
   } finally {
     submitBtn.disabled = false;
   }
 }
 
-/* ---------------- wire events ---------------- */
+/* ---------------- Wire events ---------------- */
 submitBtn.addEventListener('click', submitNDA);
-[nameEl, discordEl, roleEl, notesEl].forEach(el => el.addEventListener('input', updatePreviewText));
-
-/* initialize small preview (if any) */
+[nameEl, discordEl, emailEl, roleEl, notesEl].forEach(el => el.addEventListener('input', updatePreviewText));
 updatePreviewText();
 </script>
 </body>
